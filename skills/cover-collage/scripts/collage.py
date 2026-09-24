@@ -43,7 +43,7 @@ def main():
     p.add_argument('sub2_img')
     p.add_argument('--out', default='collage.jpg')
     p.add_argument('--size', type=int, default=1408)
-    p.add_argument('--main-ratio', type=float, default=0.60)
+    p.add_argument('--main-ratio', type=float, default=0.64)
     for k in ('main', 'sub1', 'sub2'):
         p.add_argument(f'--{k}', type=parse_focus, default=[0.5, 0.5, 1.0])
     a = p.parse_args()
