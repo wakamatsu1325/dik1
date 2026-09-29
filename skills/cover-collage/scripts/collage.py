@@ -13,9 +13,19 @@
   FX, FY : 元画像上で枠の中心に置きたい点（0〜1 の比率）。既定 0.5 0.5
   ZOOM   : 1 = 枠を埋める最小の拡大。1.3 なら 1.3 倍寄る。既定 1
 中心点が端に寄りすぎた場合は、画像外にはみ出さないよう自動で内側へ戻す。
+
+出力には「3分割画像」の印 `DogURL:split3` を書き込む（JPEGはコメント、PNGはテキスト）。
+Dog URL の集計表「1枚目3分割」がこれを読む。印は見た目に出ない。
+JPEG・PNG以外で書き出すと印は付かない（警告を出す）。
 """
 import argparse
+import os
+import sys
+
 from PIL import Image
+from PIL.PngImagePlugin import PngInfo
+
+MARK = 'DogURL:split3'
 
 
 def parse_focus(s):
@@ -43,7 +53,7 @@ def main():
     p.add_argument('sub2_img')
     p.add_argument('--out', default='collage.jpg')
     p.add_argument('--size', type=int, default=1408)
-    p.add_argument('--main-ratio', type=float, default=0.64)
+    p.add_argument('--main-ratio', type=float, default=0.60)
     for k in ('main', 'sub1', 'sub2'):
         p.add_argument(f'--{k}', type=parse_focus, default=[0.5, 0.5, 1.0])
     a = p.parse_args()
@@ -58,7 +68,17 @@ def main():
     canvas.paste(cover(Image.open(a.main_img).convert('RGB'), S, mh, *a.main), (0, 0))
     canvas.paste(cover(Image.open(a.sub1_img).convert('RGB'), lw, sh, *a.sub1), (0, mh))
     canvas.paste(cover(Image.open(a.sub2_img).convert('RGB'), rw, sh, *a.sub2), (lw, mh))
-    canvas.save(a.out, quality=95)
+    ext = os.path.splitext(a.out)[1].lower()
+    if ext in ('.jpg', '.jpeg'):
+        canvas.save(a.out, quality=95, comment=MARK.encode())
+    elif ext == '.png':
+        info = PngInfo()
+        key, value = MARK.split(':')
+        info.add_text(key, value)
+        canvas.save(a.out, pnginfo=info)
+    else:
+        canvas.save(a.out, quality=95)
+        print(f'警告: {ext} には3分割の印を書けません。集計表では手入力が要ります', file=sys.stderr)
     print(f'saved {a.out}  main {S}x{mh} / sub1 {lw}x{sh} / sub2 {rw}x{sh}')
 
 

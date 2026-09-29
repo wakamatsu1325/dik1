@@ -1,9 +1,9 @@
 ---
 name: yt-stats-apply
-description: Dog URL の集計表へ、外から取れない列を手入力で反映する。YouTube Studio のスクショから YTインプ（インプレッション）と YTいいね（高評価数）を入れる作業、「◯◯は△△いいね」「インプは未確認」のような口頭の指定、投稿を消したときの備考書き込み、そして「この作品の一枚目画像は◯◯」「1枚目は△△、エクセルに反映」のように1枚目の画像の持ち主（女優名）を入れる作業に使う。作品名やタイトルを貼って「一枚目は◯◯」「エクセルに反映」と言われたら必ずこのスキルを使う。集計表(Excel)の「YTインプ」「YTいいね」「備考」「1枚目の画像」列を埋める作業全般が対象。
+description: Dog URL の集計表へ、外から取れない列を手入力で反映する。YouTube Studio のスクショから YTインプ（インプレッション）と YTいいね（高評価数）を入れる作業、「◯◯は△△いいね」「インプは未確認」のような口頭の指定、投稿を消したときの備考書き込み、「この作品の一枚目画像は◯◯」「1枚目は△△、エクセルに反映」のように1枚目の画像の登場人物（女優名）を入れる作業、そして「1枚目は3分割」「これは3分割じゃない」のように1枚目が3分割画像かを入れる作業に使う。作品名やタイトルを貼って「一枚目は◯◯」「エクセルに反映」と言われたら必ずこのスキルを使う。集計表(Excel)の「YTインプ」「YTいいね」「備考」「1枚目の画像」「1枚目3分割」列を埋める作業全般が対象。
 ---
 
-# 集計表への手入力（YT成績・1枚目の画像）
+# 集計表への手入力（YT成績・1枚目の画像・3分割）
 
 Dog URL の集計表には、外から取る口が無い列と、置き場所からの自動判定が外れる列がある。
 どちらも短縮URLごとに手で入れる。入口は同じで、入れるものが違うだけである。
@@ -13,6 +13,7 @@ Dog URL の集計表には、外から取る口が無い列と、置き場所か
 | YouTube Studio のスクショから | `YTインプ` `YTいいね` | `yt` |
 | 口頭の指定・投稿を消したとき | `備考` | `note` |
 | 1枚目の画像が誰か | `1枚目の画像` | `owner` |
+| 1枚目が3分割画像か | `1枚目3分割` | `split` |
 
 作業場所は `/Users/daiki/Desktop/Dog URL`。ここから `ruby bin/shorten.rb` を叩く。
 
@@ -46,7 +47,8 @@ python3 ~/.claude/skills/yt-stats-apply/scripts/find_short_url.py "誰もが恋�
 python3 ~/.claude/skills/yt-stats-apply/scripts/find_short_url.py "第2回素人フェラチオシンデレラ選手権"
 ```
 
-記号（`【】🉐！？…☆/`）は落とし、濁点の綴り（macOSのファイル名はNFD）も揃えて突き合わせるので、
+記号（`【】🉐！？…☆/＆&`）は落とし、濁点の綴り（macOSのファイル名はNFD）と英字の大文字小文字も揃えて突き合わせるので、
+「Kana」でフォルダ `kanaちゃん`、「泉深月」でフォルダ `泉＆深月` が引ける。
 スクショの読み違いや長いタイトルの一部でも当たる。出るのは
 `短縮URL / どこで一致したか / 投稿本文 / 1枚目の画像 / 実行記録` である。
 同じ投稿を作り直していれば記録は複数あるが、短縮URLは1つに畳んで出る。
@@ -59,12 +61,12 @@ python3 ~/.claude/skills/yt-stats-apply/scripts/find_short_url.py "第2回素人
 
 ```bash
 cd "/Users/daiki/Desktop/Dog URL"
-ruby bin/shorten.rb yt https://tinyurl.com/xxxx 126032 908  # インプといいね
-ruby bin/shorten.rb yt https://tinyurl.com/xxxx 126032      # インプだけ
-ruby bin/shorten.rb yt https://tinyurl.com/xxxx - 87        # いいねだけ（インプは触らない）
-ruby bin/shorten.rb yt https://tinyurl.com/xxxx --clear     # 両方消す
-ruby bin/shorten.rb note https://tinyurl.com/xxxx "3時間で削除"  # 備考
-ruby bin/shorten.rb note https://tinyurl.com/xxxx --clear       # 備考を消す
+ruby bin/shorten.rb yt https://x.gd/xxxxx 126032 908  # インプといいね
+ruby bin/shorten.rb yt https://x.gd/xxxxx 126032      # インプだけ
+ruby bin/shorten.rb yt https://x.gd/xxxxx - 87        # いいねだけ（インプは触らない）
+ruby bin/shorten.rb yt https://x.gd/xxxxx --clear     # 両方消す
+ruby bin/shorten.rb note https://x.gd/xxxxx "3時間で削除"  # 備考
+ruby bin/shorten.rb note https://x.gd/xxxxx --clear       # 備考を消す
 ruby bin/shorten.rb yt    # 入っている分を全部並べる（最後に必ず確認する）
 ```
 
@@ -73,18 +75,18 @@ ruby bin/shorten.rb yt    # 入っている分を全部並べる（最後に必�
   YTインプは数値列なので文字は入らない
 - いいねだけ入れた行は、集計表のYTインプ欄が空ではなく `-` と出る（そういう作りになっている）
 
-### 3-b. 1枚目の画像の持ち主を入れる
+### 3-b. 1枚目の画像の登場人物を入れる
 
 「この作品の一枚目は◯◯」と言われたときはこれである。
 
 ```bash
 cd "/Users/daiki/Desktop/Dog URL"
-ruby bin/shorten.rb owner https://tinyurl.com/xxxx 虹村ゆみ   # 入れる／入れ直す
-ruby bin/shorten.rb owner https://tinyurl.com/xxxx --clear   # 消す
+ruby bin/shorten.rb owner https://x.gd/xxxxx 虹村ゆみ   # 入れる／入れ直す
+ruby bin/shorten.rb owner https://x.gd/xxxxx --clear   # 消す
 ruby bin/shorten.rb owner    # 入っている分を全部並べる（最後に必ず確認する）
 ```
 
-- **手入力はパスから読めた値より優先する。** これが要るのは、画像の置き場所から持ち主を決められない
+- **手入力はパスから読めた値より優先する。** これが要るのは、画像の置き場所から登場人物を決められない
   ときである。人名フォルダ（`河北彩花/…jpg`）に入れてあれば自動で出るので、手で入れる必要は無い。
   **作品名のフォルダ（`<作品名>/202609230813.jpg`）に入っていると作品名が出てしまう**ので、
   そこに誰が写っているかは人にしか分からない
@@ -92,10 +94,30 @@ ruby bin/shorten.rb owner    # 入っている分を全部並べる（最後に�
   パスは `find_short_url.py` の出力に出るので、渡された作品名とフォルダ名が合うことを見る
 - 入れ終わったら `ruby bin/shorten.rb owner` を出し、その行が意図どおりか見る
 
+### 3-c. 1枚目が3分割かを入れる
+
+「この投稿の1枚目は3分割」「3分割じゃない」と言われたときはこれである。
+
+```bash
+cd "/Users/daiki/Desktop/Dog URL"
+ruby bin/shorten.rb split https://x.gd/xxxxx 3分割    # 3分割だった
+ruby bin/shorten.rb split https://x.gd/xxxxx なし     # 3分割ではなかった
+ruby bin/shorten.rb split https://x.gd/xxxxx --clear  # 消す（自動判定に戻す）
+ruby bin/shorten.rb split    # 入っている分を全部並べる（最後に必ず確認する）
+```
+
+- **ふだんは自動で入る。** cover-collage スキルの `collage.py` が画像に `DogURL:split3` の印を書き込み、
+  投稿時にそれを見て実行記録へ残す。手で入れるのは、印を書く前（2026-09-27 より前）に作った3分割画像と、
+  合成の後で別のツール（mosaic-mask・photo-blur 等）で保存し直して印が落ちた画像である
+- 採る順は **手入力 → 投稿時の判定 → 今ある画像ファイルの印**。自動判定が違っていれば手入力で上書きできる
+- 古い行で印が無いものは、集計表では `なし` ではなく**空**になる（3分割か分からないため）
+- 受け付けるのは `3分割` と `なし` だけ（`あり`/`無し` 等の揺れは寄せる）。それ以外は弾かれる
+- 1枚目の画像の登場人物と同じく、**画像を見て自分で決めない。言われたとおりに入れる**
+
 ### 4. 報告する
 
 入れた分を表で返す。YT成績なら短縮URL・インプ・いいね・いいね率（いいね ÷ インプ、小数第2位）、
-1枚目の画像なら短縮URL・作品名・入れた名前を並べる。
+1枚目の画像なら短縮URL・作品名・入れた名前を、3分割なら短縮URL・作品名・入れた値を並べる。
 **入れなかったものとその理由**（短縮URLが無い煽り投稿／数字が読めない行／画面に無い投稿）も必ず書く。
 黙って落とすと、入れたつもりの値が入っていないことに気付けない。
 
@@ -111,6 +133,7 @@ IDやパスワードを代わりに打たない。ログイン待ちで止まる
 
 - 読めない数字を埋めること。欠けている行は「読み切れないので触っていない」と言って返す
 - 短縮URLを貼っていない投稿のために行を作ること
-- 1枚目の画像の持ち主を、画像を見て自分で決めること。**言われた名前をそのまま入れる**
+- 1枚目の画像の登場人物を、画像を見て自分で決めること。**言われた名前をそのまま入れる**
+- 1枚目が3分割かを、画像を見て自分で決めること。**言われたとおりに入れる**
 - `~/Library/Application Support/Dog URL/*.json` を直接書き換えること。CLIを通す
   （数の検査・短縮URLの解決・並べ替えがまとめて効く）

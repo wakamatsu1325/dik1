@@ -20,7 +20,7 @@ DEFAULT_SCALE = 0.25
 DEFAULT_OUT = Path.home() / "Desktop"
 
 
-def mosaic_one(src, pct, scale, outdir, tag, quality):
+def mosaic_one(src, pct, scale, outdir, tag, quality, name=None):
     im = ImageOps.exif_transpose(Image.open(src))
     if im.mode not in ("RGB", "L"):
         im = im.convert("RGB")
@@ -31,7 +31,7 @@ def mosaic_one(src, pct, scale, outdir, tag, quality):
         out = out.resize((max(1, round(im.width * scale)),
                           max(1, round(im.height * scale))), Image.LANCZOS)
     suffix = src.suffix if src.suffix.lower() in (".jpg", ".jpeg", ".png") else ".png"
-    dst = outdir / f"mosaic_{tag}_{src.stem}{suffix}"
+    dst = outdir / f"mosaic_{tag}_{name or src.stem}{suffix}"
     if suffix.lower() in (".jpg", ".jpeg"):
         out.save(dst, quality=quality, subsampling=0)
     else:
@@ -52,7 +52,11 @@ def main():
                    help=f"出力の縮小率 (既定: {DEFAULT_SCALE})")
     p.add_argument("--out", type=Path, default=DEFAULT_OUT, help="出力先 (既定: ~/Desktop)")
     p.add_argument("--quality", type=int, default=95, help="JPEG 品質 (既定: 95)")
+    p.add_argument("--name", nargs="+", default=None, metavar="NAME",
+                   help="出力名に使う元のファイル名（拡張子なし）。画像と同じ順・同じ数")
     a = p.parse_args()
+    if a.name is not None and len(a.name) != len(a.images):
+        p.error(f"--name の数 ({len(a.name)}) が画像の数 ({len(a.images)}) と違う")
 
     if a.block_pct is not None:
         pct, tag = a.block_pct / 100.0, f"PCT{a.block_pct:g}"
@@ -61,11 +65,11 @@ def main():
     a.out.mkdir(parents=True, exist_ok=True)
 
     rc = 0
-    for src in a.images:
+    for i, src in enumerate(a.images):
         if not src.is_file():
             print(f"skip (not a file): {src}", file=sys.stderr); rc = 1; continue
         try:
-            mosaic_one(src, pct, a.scale, a.out, tag, a.quality)
+            mosaic_one(src, pct, a.scale, a.out, tag, a.quality, a.name[i] if a.name else None)
         except Exception as e:
             print(f"failed: {src}: {e}", file=sys.stderr); rc = 1
     return rc
