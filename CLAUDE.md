@@ -5,8 +5,10 @@
 # downloads/ に置いたファイルは自動でMacのデスクトップへ届く
 
 - ユーザーに渡すファイルは、**リポジトリ `wakamatsu1325/dik1-downloads` の `downloads/` に保存して、`main` へ push する**。Mac が1分以内に拾って、デスクトップ直下へ移す。`dik1` 自身には置かない（履歴が太るため）。
+  - **最初に必ず `mcp__claude-code-remote__add_repo`（owner: wakamatsu1325, repo: dik1-downloads, access: push）でリポジトリをセッションに接続する。** 接続前の clone / push は毎回 403 で失敗するので、先に試さない（省略する）。
+  - add_repo の結果の指示に従い、clone は1回だけ（`git clone --depth 1`、タイムアウトは長めの10分）。`/home/user/dik1-downloads` が既にあれば `git -C /home/user/dik1-downloads rev-parse HEAD` で生きているか確かめて、そのまま使う。clone 後に `register_repo_root` を呼ぶ。
   ```
-  git clone https://github.com/wakamatsu1325/dik1-downloads.git /home/user/dik1-downloads  # 無ければ
+  git clone --depth 1 https://github.com/wakamatsu1325/dik1-downloads.git /home/user/dik1-downloads  # add_repo の後、無ければ
   cp <ファイル> /home/user/dik1-downloads/downloads/
   cd /home/user/dik1-downloads && git add downloads && git commit -m "downloads: <内容>" && git pull --rebase origin main && git push origin HEAD:main
   ```
