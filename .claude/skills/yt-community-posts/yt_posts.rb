@@ -6,9 +6,9 @@
 #     （フォルダ以下＝サブフォルダ含む の YouTube チャンネルを重複を除いて全部回す。--list は一覧だけ出す。
 #       --skip はブックマーク名か URL にその文字列を含むチャンネルを外す）
 #   ruby yt_posts.rb <投稿URL（youtube.com/post/ID）>... [--out DIR]
-#     （個別の投稿：画像だけを DIR(既定 ~/Desktop) の直下へ。txt は作らない。チャンネルURLと混ぜて渡してもよい）
+#     （個別の投稿：画像だけを DIR(既定 ~/Desktop。クラウドは <リポジトリ>/downloads) の直下へ。txt は作らない。チャンネルURLと混ぜて渡してもよい）
 #
-# 保存先: <DIR(既定 ~/Desktop/コミュニティ投稿)>/<チャンネル名>_投稿/  投稿0件のチャンネルはフォルダを作らない。
+# 保存先: <DIR(既定 ~/Desktop/コミュニティ投稿。クラウドは <リポジトリ>/downloads/コミュニティ投稿)>/<チャンネル名>_投稿/  投稿0件のチャンネルはフォルダを作らない。
 #   直下に 画像「高評価数_本文1行目_N.拡張子」と 投稿一覧.txt（全投稿の情報・新しい順）。
 # 取り直すと、高評価数が変わった画像は付け直し（リネーム。落とし直さない）、新しい投稿だけ落とす。
 # 今回の一覧に出なかった過去の投稿（削除・取得上限）は、画像も記録も消さずに一覧の末尾へ残す。
@@ -266,6 +266,11 @@ def save_single(arg, dir)
   puts "  → #{dir}"
 end
 
+# 既定の保存先の親：ローカル（Mac）は ~/Desktop、クラウド環境（~/Desktop が無い）はリポジトリ直下の downloads/。
+# downloads/ は .gitignore 済みで、クラウドのセッションからユーザーが開けるリポジトリ内に置く共通の置き場。
+CLOUD_BASE = File.expand_path('../../../downloads', __dir__)
+BASE = File.directory?(File.expand_path('~/Desktop')) ? File.expand_path('~/Desktop') : CLOUD_BASE
+
 root = nil
 args = ARGV.map { |a| a.dup.force_encoding('UTF-8') } # LANG 無しで呼ばれると ASCII-8BIT で来る
 if (i = args.index('--out'))
@@ -297,9 +302,9 @@ abort 'usage: ruby yt_posts.rb <チャンネルURL or @handle>... [--out DIR] / 
 args.each do |a|
   begin
     if post_id_of(a)
-      save_single(a, root || File.expand_path('~/Desktop')) # 個別の投稿は既定でデスクトップ直下
+      save_single(a, root || BASE) # 個別の投稿は既定でデスクトップ直下（クラウドは downloads/ 直下）
     else
-      save_channel(a, root || File.expand_path('~/Desktop/コミュニティ投稿'))
+      save_channel(a, root || File.join(BASE, 'コミュニティ投稿'))
     end
   rescue SystemExit, StandardError => e
     puts "#{a}: 失敗 #{e.message}"
