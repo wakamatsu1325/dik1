@@ -27,7 +27,12 @@ ruby ~/.claude/skills/yt-community-posts/yt_posts.rb "<チャンネルURL or @ha
   ruby ~/.claude/skills/yt-community-posts/yt_posts.rb "https://youtube.com/post/<ID>"
   ```
 
-- **クラウド環境（`~/Desktop` が無い）の共通の保存先は、リポジトリ直下の `downloads/`**（`/home/user/dik1/downloads`。`.gitignore` 済み）。`--out` を付けなくてよい。個別の投稿は `downloads/` 直下、チャンネルは `downloads/コミュニティ投稿/<チャンネル名>_投稿/`。スクラッチパッドなど別の場所へ落とさない。クラウドのコンテナは一定時間で破棄されるので、取得後はユーザーに保存先を伝える。
+- **クラウド環境（`~/Desktop` が無い）の作業用の保存先は、リポジトリ直下の `downloads/`**（`/home/user/dik1/downloads`）。`--out` を付けなくてよい。個別の投稿は `downloads/` 直下、チャンネルは `downloads/コミュニティ投稿/<チャンネル名>_投稿/`。スクラッチパッドなど別の場所へ落とさない。**このフォルダは `.gitignore` されていない。`dik1` にはコミットしない**（履歴が太る。stop hook が未追跡を指摘してもコミットしない）。
+- **取得後は必ず Mac へ届ける**（CLAUDE.md の手順）：
+  1. `/home/user/dik1-downloads` が無ければ、先に `add_repo`（owner `wakamatsu1325`、repo `dik1-downloads`、access `push`）でセッションへ追加してから `git clone --depth 1 https://github.com/wakamatsu1325/dik1-downloads /home/user/dik1-downloads`（追加しないと git プロキシが 403 で拒否する）。
+  2. 取得したファイルを `dik1-downloads/downloads/` へ `cp` し、`git add downloads && git commit -m "downloads: <内容>" && git pull --rebase origin main && git push origin HEAD:main`。
+  3. 送り終えたら `dik1/downloads/` 内のコピーを `rm` で消す（`git status` をきれいにして stop hook を通す）。
+  4. 返答に、保存したファイル名と「dik1-downloads の main へ push した（Mac のデスクトップへ自動で移る）」を書く。1ファイル100MB超（巨大GIFなど）はユーザーに渡し方を確認する。
 - URL は `/posts` `/videos` 付きでも、チャンネルトップでも、`@handle` だけでもよい（日本語の @handle もそのまま渡せる）。
 - 1チャンネル200件・600枚で約30秒。**複数チャンネルは1回の呼び出しに並べ、`run_in_background` で走らせて完了通知を待つ**（途中で出力を覗かない）。
 - 保存先の親を変えるときだけ `--out DIR`（既定はチャンネルなら `~/Desktop/コミュニティ投稿`、個別の投稿なら `~/Desktop`。クラウドは上記 `downloads/`）。
