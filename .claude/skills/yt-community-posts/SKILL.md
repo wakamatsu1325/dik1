@@ -27,7 +27,9 @@ ruby ~/.claude/skills/yt-community-posts/yt_posts.rb "<チャンネルURL or @ha
   ruby ~/.claude/skills/yt-community-posts/yt_posts.rb "https://youtube.com/post/<ID>"
   ```
 
-- **クラウド環境（`~/Desktop` が無い）の共通の保存先は、リポジトリ直下の `downloads/`**（`/home/user/dik1/downloads`。`.gitignore` 済み）。`--out` を付けなくてよい。個別の投稿は `downloads/` 直下、チャンネルは `downloads/コミュニティ投稿/<チャンネル名>_投稿/`。スクラッチパッドなど別の場所へ落とさない。クラウドのコンテナは一定時間で破棄されるので、取得後はユーザーに保存先を伝える。
+- **クラウド環境（`~/Desktop` が無い）の共通の保存先は、リポジトリ直下の `downloads/`**（`/home/user/dik1/downloads`。`.gitignore` 済み）。`--out` を付けなくてよい。個別の投稿は `downloads/` 直下、チャンネルは `downloads/コミュニティ投稿/<チャンネル名>_投稿/`。スクラッチパッドなど別の場所へ落とさない。クラウドのコンテナは一定時間で破棄される。
+- **取得したら、必ず `dik1-downloads` の `downloads/` へコピーして `main` へ push する（Mac のデスクトップへ自動で移る）。** 手順は CLAUDE.md のとおり（先に `add_repo`（dik1-downloads, push）→ clone 確認 → `cp` → commit → `pull --rebase` → `push origin HEAD:main`）。`dik1/downloads/` に置いただけで終わらせない。これを忘れると、ユーザーはファイルを受け取れない（実際に踏んだ）。
+- 返答には、保存したファイル名と「dik1-downloads の main へ push した」を書く。
 - URL は `/posts` `/videos` 付きでも、チャンネルトップでも、`@handle` だけでもよい（日本語の @handle もそのまま渡せる）。
 - 1チャンネル200件・600枚で約30秒。**複数チャンネルは1回の呼び出しに並べ、`run_in_background` で走らせて完了通知を待つ**（途中で出力を覗かない）。
 - 保存先の親を変えるときだけ `--out DIR`（既定はチャンネルなら `~/Desktop/コミュニティ投稿`、個別の投稿なら `~/Desktop`。クラウドは上記 `downloads/`）。
@@ -48,6 +50,29 @@ ruby ~/.claude/skills/yt-community-posts/yt_posts.rb "<チャンネルURL or @ha
 - 高評価数が変わった画像は**付け直す**（リネーム。落とし直さない）。新しい投稿の画像だけ落とす。
 - 今回の一覧に出なかった過去の投稿（削除・上限で切れた分）は、画像も記録も消さずに一覧の末尾へ残す。
 - 対応づけは前回の `投稿一覧.txt` の「投稿ID」と画像名で取るので、**この txt の書式を手で崩さない**。
+
+## 投稿URLを渡されたとき：画像の出力後に Bluesky 本文のURLをチャットへ出す（毎回）
+
+個別の投稿（`youtube.com/post/…`）を取って画像をチャットへ出したら、**その後に必ず**、投稿本文のリンク先（Bluesky の投稿）の**本文にあるURL**をチャットへ出す（だいきんぐの指定）。スクリプトは本文のURLを消すので、別に調べる。
+
+1. 投稿ページから本文のリンクを取る：
+
+   ```bash
+   curl -sL -A "Mozilla/5.0" "https://www.youtube.com/post/<ID>" -o p.html
+   grep -o '"text":"[^"]*http[^"]*"' p.html | head -1   # 本文（bsky.app/profile/…/post/<rkey> が入っている）
+   ```
+
+2. Bluesky の API で、その投稿の本文とリンク（facets）を読む。handle は DID に解決されるので、そのまま `at://<handle>/app.bsky.feed.post/<rkey>` でよい：
+
+   ```bash
+   curl -s "https://public.api.bsky.app/xrpc/app.bsky.feed.getPostThread?uri=at://<handle>/app.bsky.feed.post/<rkey>&depth=0"
+   ```
+
+   `record.facets[].features[].uri`（リンク）と `record.text`（本文）を見る。
+
+3. チャットへ `https://x.gd/xxxxx` の形で出す（本文が `x.gd/xxxxx` と省略形でも `https://` を付けて出す）。
+4. **出すのは本文のリンクだけ**（だいきんぐの指定）。転送先は踏まない・書かない。
+5. 本文にリンクが無い・Bluesky ではない・取れないときは、その旨を一言書く（黙って省略しない）。
 
 ## 報告と注意
 
