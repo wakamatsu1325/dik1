@@ -28,6 +28,7 @@ ruby ~/.claude/skills/yt-community-posts/yt_posts.rb "<チャンネルURL or @ha
   ```
 
 - **クラウド環境（`~/Desktop` が無い）の共通の保存先は、リポジトリ直下の `downloads/`**（`/home/user/dik1/downloads`。`.gitignore` 済み）。`--out` を付けなくてよい。個別の投稿は `downloads/` 直下、チャンネルは `downloads/コミュニティ投稿/<チャンネル名>_投稿/`。スクラッチパッドなど別の場所へ落とさない。クラウドのコンテナは一定時間で破棄される。
+- **個別の投稿は、画像を「`高評価数_本文1行目`」という名前のフォルダ（画像のファイル名から `_N.拡張子` を除いたもの。例 `126_【50%オフ】こんな可愛い生徒を家庭教師してみたい😍`）にまとめ、フォルダごと `dik1-downloads` の `downloads/` へ置いて `main` へ push する**（毎回。だいきんぐの指定）。画像だけを `downloads/` 直下に並べない。返答には「フォルダごと送った」と書く。
 - **取得したら、必ず `dik1-downloads` の `downloads/` へコピーして `main` へ push する（Mac のデスクトップへ自動で移る）。** 手順は CLAUDE.md のとおり（先に `add_repo`（dik1-downloads, push）→ clone 確認 → `cp` → commit → `pull --rebase` → `push origin HEAD:main`）。`dik1/downloads/` に置いただけで終わらせない。これを忘れると、ユーザーはファイルを受け取れない（実際に踏んだ）。
 - 返答には、保存したファイル名と「dik1-downloads の main へ push した」を書く。
 - URL は `/posts` `/videos` 付きでも、チャンネルトップでも、`@handle` だけでもよい（日本語の @handle もそのまま渡せる）。
