@@ -49,6 +49,28 @@ ruby ~/.claude/skills/yt-community-posts/yt_posts.rb "<チャンネルURL or @ha
 - 今回の一覧に出なかった過去の投稿（削除・上限で切れた分）は、画像も記録も消さずに一覧の末尾へ残す。
 - 対応づけは前回の `投稿一覧.txt` の「投稿ID」と画像名で取るので、**この txt の書式を手で崩さない**。
 
+## 投稿URLを渡されたとき：画像の出力後に Bluesky 本文のURLをチャットへ出す（毎回）
+
+個別の投稿（`youtube.com/post/…`）を取って画像をチャットへ出したら、**その後に必ず**、投稿本文のリンク先（Bluesky の投稿）の**本文にあるURL**をチャットへ出す（だいきんぐの指定）。スクリプトは本文のURLを消すので、別に調べる。
+
+1. 投稿ページから本文のリンクを取る：
+
+   ```bash
+   curl -sL -A "Mozilla/5.0" "https://www.youtube.com/post/<ID>" -o p.html
+   grep -o '"text":"[^"]*http[^"]*"' p.html | head -1   # 本文（bsky.app/profile/…/post/<rkey> が入っている）
+   ```
+
+2. Bluesky の API で、その投稿の本文とリンク（facets）を読む。handle は DID に解決されるので、そのまま `at://<handle>/app.bsky.feed.post/<rkey>` でよい：
+
+   ```bash
+   curl -s "https://public.api.bsky.app/xrpc/app.bsky.feed.getPostThread?uri=at://<handle>/app.bsky.feed.post/<rkey>&depth=0"
+   ```
+
+   `record.facets[].features[].uri`（リンク）と `record.text`（本文）を見る。
+
+3. チャットへ `https://x.gd/xxxxx` の形で出す（本文が `x.gd/xxxxx` と省略形でも `https://` を付けて出す）。リンク先をたどる必要はない（頼まれたときだけ `curl -sI` で転送先を見る）。
+4. 本文にリンクが無い・Bluesky ではない・取れないときは、その旨を一言書く（黙って省略しない）。
+
 ## 報告と注意
 
 - 出力の要約行（件数・最古の投稿・新規/付け直し/失敗）をそのまま伝える。
