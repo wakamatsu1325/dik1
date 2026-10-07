@@ -16,3 +16,9 @@
 - 1ファイル 100MB 以下にする（GitHub の上限）。超えるものは、渡し方をユーザーに確認する。
 - 保存後の返答には、保存したファイル名と「dik1-downloads の main へ push した（Mac のデスクトップへ自動で移る）」を書く。
 - **画像を加工したら、必ず `SendUserFile`（display: render）でこのチャット内にも出す。** downloads/ への push だけで済ませない。チャットに出し忘れない。
+
+# スキルを作ったら、必ず main への取り込みまで行う
+
+- `.claude/skills/` にスキルを新規作成・更新したら、作業ブランチへの push で終わらせず、**`dik1` の `main` へ取り込むところまでやる**（他のセッションで使えるようにするため）。
+  - 手順: `git fetch origin main` → 作業ブランチに main を取り込む → `git push origin HEAD:main`。保護されていて直接 push できないときは、PR を作って `main` へマージする。
+- 取り込んだら、返答に「main へ取り込み済み」と書く。
