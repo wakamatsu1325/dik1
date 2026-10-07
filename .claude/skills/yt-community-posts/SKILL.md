@@ -27,7 +27,9 @@ ruby ~/.claude/skills/yt-community-posts/yt_posts.rb "<チャンネルURL or @ha
   ruby ~/.claude/skills/yt-community-posts/yt_posts.rb "https://youtube.com/post/<ID>"
   ```
 
-- **クラウド環境（`~/Desktop` が無い）の共通の保存先は、リポジトリ直下の `downloads/`**（`/home/user/dik1/downloads`。`.gitignore` 済み）。`--out` を付けなくてよい。個別の投稿は `downloads/` 直下、チャンネルは `downloads/コミュニティ投稿/<チャンネル名>_投稿/`。スクラッチパッドなど別の場所へ落とさない。クラウドのコンテナは一定時間で破棄されるので、取得後はユーザーに保存先を伝える。
+- **クラウド環境（`~/Desktop` が無い）の共通の保存先は、リポジトリ直下の `downloads/`**（`/home/user/dik1/downloads`。`.gitignore` 済み）。`--out` を付けなくてよい。個別の投稿は `downloads/` 直下、チャンネルは `downloads/コミュニティ投稿/<チャンネル名>_投稿/`。スクラッチパッドなど別の場所へ落とさない。クラウドのコンテナは一定時間で破棄される。
+- **取得したら、必ず `dik1-downloads` の `downloads/` へコピーして `main` へ push する（Mac のデスクトップへ自動で移る）。** 手順は CLAUDE.md のとおり（先に `add_repo`（dik1-downloads, push）→ clone 確認 → `cp` → commit → `pull --rebase` → `push origin HEAD:main`）。`dik1/downloads/` に置いただけで終わらせない。これを忘れると、ユーザーはファイルを受け取れない（実際に踏んだ）。
+- 返答には、保存したファイル名と「dik1-downloads の main へ push した」を書く。
 - URL は `/posts` `/videos` 付きでも、チャンネルトップでも、`@handle` だけでもよい（日本語の @handle もそのまま渡せる）。
 - 1チャンネル200件・600枚で約30秒。**複数チャンネルは1回の呼び出しに並べ、`run_in_background` で走らせて完了通知を待つ**（途中で出力を覗かない）。
 - 保存先の親を変えるときだけ `--out DIR`（既定はチャンネルなら `~/Desktop/コミュニティ投稿`、個別の投稿なら `~/Desktop`。クラウドは上記 `downloads/`）。
