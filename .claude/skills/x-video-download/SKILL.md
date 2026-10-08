@@ -1,6 +1,6 @@
 ---
 name: x-video-download
-description: X（旧Twitter）の投稿に付いている動画を mp4 でダウンロードして Mac へ渡す。x.com/…/status/… のURLを渡されて「この動画を保存」「動画をダウンロード」「動画を落として」「Xの動画を取って」などと言われたら必ずこれを使う。URLだけ貼られて、用途を聞いて「動画を保存」と答えられた場合も同じ。ファイル名は「ユーザー名_投稿本文.mp4」。記事（Article）は x-article-pdf、スペースは x-space-download の担当で、こちらではない。
+description: X（旧Twitter）の投稿に付いている動画を mp4 でダウンロードして Mac へ渡す。x.com/…/status/… のURLを渡されて「この動画を保存」「動画をダウンロード」「動画を落として」「Xの動画を取って」などと言われたら必ずこれを使う。URLだけ貼られて、用途を聞いて「動画を保存」と答えられた場合も同じ。ファイル名は「表示名_投稿本文.mp4」。記事（Article）は x-article-pdf、スペースは x-space-download の担当で、こちらではない。
 ---
 
 # X の投稿の動画を保存する
@@ -15,7 +15,7 @@ description: X（旧Twitter）の投稿に付いている動画を mp4 でダウ
    python3 /home/user/dik1/.claude/skills/x-video-download/x_video_download.py "<URL>" <出力ディレクトリ>
    ```
    - 出力ディレクトリは scratchpad 内の空ディレクトリ。
-   - ファイル名は `ユーザー名_投稿本文.mp4`（例: `ganbaru_bonjin_【革命です】AI美女アプリが出来ました。.mp4`）。ユーザー名は `@` 抜きの screen_name。本文の改行は詰め、t.co のURLとファイル名に使えない文字（`/ \ : * ? " < > |`）は除く。120文字で切る。
+   - ファイル名は `表示名_投稿本文.mp4`（例: `凡人くん_【革命です】AI美女アプリが出来ました。.mp4`）。先頭は @ID ではなく**表示名**（`author.name`）。本文の改行は詰め、t.co のURLとファイル名に使えない文字（`/ \ : * ? " < > |`）は除く。120文字で切る。
    - 画質は、100MB 以下に収まる中で最高のものを自動で選ぶ（短い動画なら最高画質、長いと 720p などに落ちる）。全画質が超えるときは警告が出る。
    - 動画が複数あれば末尾に `_1` `_2` を付ける。
 3. 100MB 以下なら `/home/user/dik1-downloads/downloads/` へコピーし、CLAUDE.md どおり commit → `git pull --rebase origin main` → `git push origin HEAD:main`。
