@@ -22,3 +22,11 @@
 - `.claude/skills/` にスキルを新規作成・更新したら、作業ブランチへの push で終わらせず、**`dik1` の `main` へ取り込むところまでやる**（他のセッションで使えるようにするため）。
   - 手順: `git fetch origin main` → 作業ブランチに main を取り込む → `git push origin HEAD:main`。保護されていて直接 push できないときは、PR を作って `main` へマージする。
 - 取り込んだら、返答に「main へ取り込み済み」と書く。
+
+# X の URL だけが来たら、聞き返さず処理する
+
+- `x.com/…/status/…` の URL だけが貼られたら、用途を聞かない。`curl -s https://api.fxtwitter.com/i/status/<ID>` の JSON で種類を見て振り分ける。
+  - `tweet.article` がある → `x-article-pdf`
+  - スペースの投稿 → `x-space-download`
+  - `tweet.media.videos` がある → `x-video-download`（複数あれば全部保存。ファイル名は末尾に `_1` `_2`）
+  - 動画も記事もスペースも無い → このときだけ「動画が無い」と伝えて用途を聞く
