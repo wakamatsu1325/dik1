@@ -71,6 +71,13 @@ ruby ~/.claude/skills/yt-community-posts/yt_posts.rb "<チャンネルURL or @ha
 
    `record.facets[].features[].uri`（リンク）と `record.text`（本文）を見る。
 
+   **本文のリンク先が X の投稿（`x.com/<user>/status/<id>`）のとき**も同じ（だいきんぐの指定）。X の投稿内の本文にあるURLをチャットへ出す。fxtwitter で本文を読む（`text` は t.co が展開済み。`raw_text.facets[].replacement` でも確認できる）:
+
+   ```bash
+   curl -s -A "curl/8" "https://api.fxtwitter.com/i/status/<ID>" | python3 -c "import json,sys,re;t=json.load(sys.stdin)['tweet'];print(t['text'])"
+   ```
+
+   本文中の `https://…`（`】` `」` などの括弧は含めない）を出す。X 投稿のURL自体を出して済ませない。
 3. チャットへ `https://x.gd/xxxxx` の形で出す（本文が `x.gd/xxxxx` と省略形でも `https://` を付けて出す）。
 4. **出すのは本文のリンクだけ**（だいきんぐの指定）。転送先は踏まない・書かない。
 5. 本文にリンクが無い・Bluesky ではない・取れないときは、その旨を一言書く（黙って省略しない）。
