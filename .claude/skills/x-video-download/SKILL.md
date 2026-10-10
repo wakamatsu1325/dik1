@@ -1,6 +1,6 @@
 ---
 name: x-video-download
-description: X（旧Twitter）の投稿に付いている動画を mp4 でダウンロードして Mac へ渡す。x.com/…/status/… のURLを渡されて「この動画を保存」「動画をダウンロード」「動画を落として」「Xの動画を取って」などと言われたら必ずこれを使う。**x.com/…/status/… のURLだけが貼られたときは、用途を聞き返さずこのスキルで動画を落とす**（先に fxtwitter の JSON で種類を見て、記事なら x-article-pdf、スペースなら x-space-download へ回す）。ファイル名は「表示名_投稿本文.mp4」。記事（Article）は x-article-pdf、スペースは x-space-download の担当で、こちらではない。
+description: X（旧Twitter）の投稿に付いている動画を mp4 でダウンロードして Mac へ渡す。x.com/…/status/… のURLを渡されて「この動画を保存」「動画をダウンロード」「動画を落として」「Xの動画を取って」などと言われたら必ずこれを使う。画像だけの投稿は x-post-images。**x.com/…/status/… のURLだけが貼られたときは、用途を聞き返さずこのスキルで動画を落とす**（先に fxtwitter の JSON で種類を見て、記事なら x-article-pdf、スペースなら x-space-download へ回す）。ファイル名は「表示名_投稿本文.mp4」。記事（Article）は x-article-pdf、スペースは x-space-download の担当で、こちらではない。
 ---
 
 # X の投稿の動画を保存する
