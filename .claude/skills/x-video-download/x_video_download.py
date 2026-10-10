@@ -22,6 +22,8 @@ text = re.sub(r"[\r\n]+", "", text)                            # 改行は詰め
 text = re.sub(r'[/\\:*?"<>|]', "", text).strip()               # ファイル名に使えない文字
 name = re.sub(r'[/\\:*?"<>|\r\n]', "", data["author"]["name"]).strip() or user   # 表示名(例: 凡人くん)。@IDではない
 base = f"{name}_{text}"[:120] or f"{user}_{tid}"
+while len(base.encode()) > 230:   # ファイル名は255バイトまで(日本語は1文字3バイト)。末尾の _1.mp4 の分を空ける
+    base = base[:-1]
 out.mkdir(parents=True, exist_ok=True)
 for i, v in enumerate(videos):
     mp4 = [f for f in v.get("formats", []) if f.get("container") == "mp4"]
