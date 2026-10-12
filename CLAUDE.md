@@ -30,3 +30,7 @@
   - スペースの投稿 → `x-space-download`
   - `tweet.media.videos` がある → `x-video-download`（複数あれば全部保存。ファイル名は末尾に `_1` `_2`）
   - 動画も記事もスペースも無い → このときだけ「動画が無い」と伝えて用途を聞く
+
+# stand.fm の URL だけが来たら、聞き返さず音声を保存する
+
+- `stand.fm/episodes/…` の URL だけが貼られたら、用途を聞かない。`stand-fm-download` で音声（m4a）を落として Mac へ渡す。
