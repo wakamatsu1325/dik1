@@ -34,3 +34,7 @@
 # stand.fm の URL だけが来たら、聞き返さず音声を保存する
 
 - `stand.fm/episodes/…` の URL だけが貼られたら、用途を聞かない。`stand-fm-download` で音声（m4a）を落として Mac へ渡す。
+
+# Vimeo の URL だけが来たら、聞き返さず動画を保存する
+
+- `vimeo.com/…` や `player.vimeo.com/…` の URL だけが貼られたら（`?fl=pl&fe=vl&turnstile=…` のような長い付きURLも）、用途を聞かない。`vimeo-video-download` で動画（mp4）を落として Mac へ渡す。
