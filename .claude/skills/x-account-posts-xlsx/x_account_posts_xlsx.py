@@ -22,20 +22,32 @@ def get(url, retries=4):
 
 
 def crawl(uid, ep, extra):
-    """プロフィールの一覧をカーソルで最後まで辿る。"""
+    """プロフィールの一覧をカーソルで最後まで辿る。
+    fxtwitter は途中で 404（cursor も null）を断続的に返すので、404 は終端と区別して
+    同じカーソルで取り直す（code 200 で結果が空のときだけ終端）。"""
     allr, cur = {}, None
-    for _ in range(300):
+    for _ in range(400):
         u = f"{API}/2/profile/{uid}/{ep}?{extra}" + ("&cursor=" + urllib.parse.quote(cur) if cur else "")
-        d = get(u) or {}
-        rs = d.get("results", [])
-        new = 0
-        for r in rs:
+        d, nc, new = {}, None, 0
+        for attempt in range(10):
+            o = subprocess.run(["curl", "-s", "-m", "30", u], capture_output=True, text=True).stdout
+            try:
+                d = json.loads(o)
+            except Exception:
+                d = {}
+            if d.get("code") == 200:
+                break
+            time.sleep(2 + attempt * 2)
+        nc = (d.get("cursor") or {}).get("bottom")
+        for r in d.get("results", []):
             if r["id"] not in allr:
                 allr[r["id"]] = r
                 new += 1
-        nc = (d.get("cursor") or {}).get("bottom")
         print(ep, extra, len(allr), flush=True)
-        if not rs or not nc or nc == cur or new == 0:
+        if d.get("code") != 200:
+            print("警告: 取得が途中で失敗", ep, extra, file=sys.stderr)
+            break
+        if not d.get("results") or not nc or nc == cur:
             break
         cur = nc
     return allr
