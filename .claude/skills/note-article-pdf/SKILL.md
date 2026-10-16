@@ -1,6 +1,6 @@
 ---
 name: note-article-pdf
-description: note.com の記事（公開URL、または archive.li で保存した下書きプレビューのHTML）を、本文・画像・埋め込みリンク込みで PDF にして Mac へ渡す。note.com/…/n/n… のURLを渡されて「このnoteをダウンロードして」「noteをPDFにして」「note記事を保存」、または note.com/preview/… や archive.li の URL（下書きプレビュー）を渡されて「PDFでダウンロード」などと言われたら必ずこれを使う（後者は保存したHTMLをユーザーに頼む手順がSKILL.mdにある）。x-article-pdf と同じルール（ファイル名＝記事タイトル、元URLの下に投稿日）。
+description: note.com の記事（公開URL、または archive.li で保存した下書きプレビューのHTML）を、本文・画像・埋め込みリンク込みで PDF にして Mac へ渡す。note.com/…/n/n… のURLを渡されて「このnoteをダウンロードして」「noteをPDFにして」「note記事を保存」、または note.com/preview/… や archive.li の URL（下書きプレビュー）を渡されて「PDFでダウンロード」などと言われたら必ずこれを使う（プレビューURLは note_preview_pdf.py で自分で取れる。ユーザーにHTMLを頼まない）。x-article-pdf と同じルール（ファイル名＝記事タイトル、元URLの下に投稿日）。
 ---
 
 # note の記事を PDF にする
@@ -18,15 +18,19 @@ python3 /home/user/dik1/.claude/skills/note-article-pdf/note_article_pdf.py "<no
 - 有料記事は無料公開部分のみ（末尾に注記）。
 - 確認は `pdftoppm -r 60 -png -f 1 -l 1 <pdf> <接頭辞>` で1ページ目を見る。
 
-## 下書きプレビュー（`note.com/preview/…?prev_access_key=…`）／archive.li の URL が来たとき
+## 下書きプレビュー（`note.com/preview/…?prev_access_key=…`）が来たとき
 
-公開APIは `bad access` で拒否され、archive.li はクラウドのIPからの接続を切る（環境のネットワーク許可を足しても同じ）。**取得を何度も試さず、すぐユーザーに頼む**:
-「Mac で archive.li のページを開き、Cmd+S で『ウェブページ、完全』として保存した HTML を送って」。
+公開APIは `bad access` で拒否されるが、**ブラウザの User-Agent を付けた Chromium で開けば本文が描画される**（curl だけでは本文が空）。archive.li はクラウドのIPから接続できないので使わない。**ユーザーに HTML を頼まず、自分で取る**:
+```
+python3 /home/user/dik1/.claude/skills/note-article-pdf/note_preview_pdf.py "<プレビューURL>" /home/user/dik1-downloads/downloads
+```
+- 出力・ファイル名・PDFの中身の並びは通常版と同じ（タイトル／著者／元URL／投稿日（日本時間）／本文）。「（公開前プレビュー画面）」の注記が入る。画像は assets.st-note.com から取る（403 なら Allowed domains に足してもらう）。
+- あとは通常版と同じく `git add downloads` → commit → `git pull --rebase origin main` → `git push origin HEAD:main`。
 
-HTML を受け取ったら（アップロード先は `/root/.claude/uploads/…/*.html`）:
+## archive.li で保存された HTML をユーザーが送ってきたとき（予備）
+
+上のスクリプトが「本文が取れない」で失敗したときだけ、「Mac で archive.li のページを Cmd+S（ウェブページ、完全）で保存した HTML を送って」と頼む。受け取った HTML（`/root/.claude/uploads/…/*.html`）は:
 ```
 python3 -I /home/user/dik1/.claude/skills/note-article-pdf/note_archive_pdf.py "<保存したhtml>" /home/user/dik1-downloads/downloads
 ```
-- 本文・見出し・引用・画像（assets.st-note.com から取り直す。HTMLに画像ファイルは付いてこない）を拾う。ファイル名・PDFの中身の並びは通常版と同じ（タイトル／著者／元URL／投稿日／本文）。先頭に「archive.li が◯◯に保存したもの」と注記が入る。
-- 画像取得には assets.st-note.com への通信が要る。環境が「制限」モードで 403 のときは、Allowed domains に `assets.st-note.com` を足してもらう。
-- あとは通常版と同じく `git add downloads` → commit → `git pull --rebase origin main` → `git push origin HEAD:main`。
+- 先頭に「archive.li が◯◯に保存したもの」と注記が入る。以降は同じ手順で push。
