@@ -38,3 +38,7 @@
 # Vimeo の URL だけが来たら、聞き返さず動画を保存する
 
 - `vimeo.com/…` や `player.vimeo.com/…` の URL だけが貼られたら（`?fl=pl&fe=vl&turnstile=…` のような長い付きURLも）、用途を聞かない。`vimeo-video-download` で動画（mp4）を落として Mac へ渡す。
+
+# 8tsu.net の URL だけが来たら、聞き返さず動画を保存する
+
+- `8tsu.net/…/数字` の URL だけが貼られたら、用途を聞かない。`8tsu-video-download` で最高画質の動画（mp4）を落として Mac へ渡す。100MB を超えるときは再エンコードせず分割して送る。
