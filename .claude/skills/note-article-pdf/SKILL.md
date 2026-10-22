@@ -20,12 +20,13 @@ python3 /home/user/dik1/.claude/skills/note-article-pdf/note_article_pdf.py "<no
 
 ## 下書きプレビュー（`note.com/preview/…?prev_access_key=…`）が来たとき
 
-公開APIは `bad access` で拒否されるが、**ブラウザの User-Agent を付けた Chromium で開けば本文が描画される**（curl だけでは本文が空）。archive.li はクラウドのIPから接続できないので使わない。**ユーザーに HTML を頼まず、自分で取る**:
+**通常版と同じ `note_article_pdf.py` にプレビューURLをそのまま渡す。** `prev_access_key` を付けて公開API（`/api/v3/notes/<キー>?prev_access_key=…`）を呼ぶと本文が取れる（ログイン不要）。ユーザーに HTML を頼まない。
 ```
-python3 /home/user/dik1/.claude/skills/note-article-pdf/note_preview_pdf.py "<プレビューURL>" /home/user/dik1-downloads/downloads
+python3 /home/user/dik1/.claude/skills/note-article-pdf/note_article_pdf.py "<プレビューURL>" /home/user/dik1-downloads/downloads
 ```
-- 出力・ファイル名・PDFの中身の並びは通常版と同じ（タイトル／著者／元URL／投稿日（日本時間）／本文）。「（公開前プレビュー画面）」の注記が入る。画像は assets.st-note.com から取る（403 なら Allowed domains に足してもらう）。
-- あとは通常版と同じく `git add downloads` → commit → `git pull --rebase origin main` → `git push origin HEAD:main`。
+- 下書きは `publish_at` が空なので、投稿日は作成日（`created_at`、日本時間）で書く。
+- 出力・ファイル名・PDFの中身は通常版と同じ。あとは `git add downloads` → commit → `git pull --rebase origin main` → `git push origin HEAD:main`。
+- `note_preview_pdf.py`（Chromium で描画して取る方式）は、上記が失敗したときの予備。本文が取れないことが多い。
 
 ## archive.li で保存された HTML をユーザーが送ってきたとき（予備）
 
