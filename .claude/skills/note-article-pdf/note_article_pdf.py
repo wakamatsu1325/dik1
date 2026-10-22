@@ -59,13 +59,14 @@ def clean(body, tmp):
     return body
 
 def main(url, outdir):
-    m = re.search(r'/n/(n[0-9a-f]+)', url)
+    m = re.search(r'/(?:n|preview)/(n[0-9a-f]+)', url)
     if not m: sys.exit('note の記事URL（note.com/…/n/n英数字）を渡す')
-    d = json.loads(curl(f'https://note.com/api/v3/notes/{m.group(1)}'))['data']
+    k = re.search(r'prev_access_key=([0-9a-f]+)', url)
+    d = json.loads(curl(f'https://note.com/api/v3/notes/{m.group(1)}' + (f'?prev_access_key={k.group(1)}' if k else '')))['data']
     paid = d.get('price') and not d.get('is_purchased') and d.get('paywall') is not None
     ensure_font()
     with tempfile.TemporaryDirectory() as tmp:
-        dt = datetime.datetime.fromisoformat(d['publish_at']).astimezone(JST)
+        dt = datetime.datetime.fromisoformat(d.get('publish_at') or d['created_at']).astimezone(JST)
         B = [f'<h1>{e(d["name"])}</h1>',
              f'<p class="meta">著者: {e(d["user"]["nickname"])} (@{e(d["user"]["urlname"])})<br>'
              f'元URL: {e(d["note_url"])}<br>投稿日: {dt:%Y/%m/%d %H:%M}</p>']
