@@ -14,6 +14,6 @@ description: 複数枚の画像（YouTube コミュニティ投稿の全画像�
    python3 .claude/skills/images-to-one/scripts/grid.py "<高評価数_本文1行目>_全画像.jpg" downloads/<名前>_[1-9].jpg [--cols 4] [--cell-w 780]
    ```
    `_10` 以上があるときはファイル名を数字順に並べて渡す（glob の辞書順に注意）。
-3. 出力は個別の投稿と同じく、`高評価数_本文1行目` フォルダに入れて `dik1-downloads` の `downloads/` へ置き、`main` へ push（CLAUDE.md の手順）。
+3. 出力は**フォルダに入れず、結合した1枚の画像だけ**を `dik1-downloads` の `downloads/` 直下へ置き、`main` へ push（CLAUDE.md の手順。だいきんぐの指定）。元の個別画像は送らない。
 4. **`SendUserFile`（display: render）でチャットにも出す。**
-5. 返答には、枚数・グリッド（列×行）・サイズ・保存名と「dik1-downloads の main へ push した」を書く。元画像は `dik1` にコミットしない。
+5. 返答には、枚数・グリッド（列×行）・サイズ・保存名と「dik1-downloads の main へ push した（Mac のデスクトップ直下へ自動で移る）」。フォルダは作らないを書く。元画像は `dik1` にコミットしない。
