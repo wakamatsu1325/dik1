@@ -18,8 +18,13 @@ def main():
     url, out_dir = sys.argv[1], sys.argv[2]
     if not shutil.which("yt-dlp"):
         subprocess.run([sys.executable, "-m", "pip", "install", "-q", "yt-dlp"], check=True)
-    meta = json.loads(subprocess.run(["yt-dlp", "-J", "--no-download", url],
-                                     check=True, capture_output=True, text=True).stdout)
+    r = subprocess.run(["yt-dlp", "-J", "--no-download", url], capture_output=True, text=True)
+    if r.returncode != 0:
+        err = (r.stderr.strip().splitlines() or ["不明なエラー"])[-1]
+        hint = ("録音がまだ無い（配信中・終了直後）、録音が無効、または削除されている可能性。"
+                "終了後に録音が公開されたら同じURLで再実行する。")
+        sys.exit(f"取得できなかった: {err}\n{hint}\n※何も保存・push しない。ユーザーにこの旨を伝える。")
+    meta = json.loads(r.stdout)
     title, host = meta.get("title") or meta["id"], meta.get("uploader") or ""
     name = safe(title)[:80] + (("_" + safe(host)) if host else "") + ".m4a"
     os.makedirs(out_dir, exist_ok=True)
